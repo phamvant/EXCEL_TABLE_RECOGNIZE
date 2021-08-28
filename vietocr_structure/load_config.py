@@ -4,7 +4,7 @@ url_config = {
     'vgg_transformer': 'config/vgg_transformer.yml',
     'resnet_transformer': 'config/resnet_transformer.yml',
     'resnet_fpn_transformer': 'config/resnet_fpn_transformer.yml',
-    'base': '/media/thuan/2E4A8C924A8C590B/Users/phamt/Desktop/vietocr_structure/config/base.yml',
+    'base': 'vietocr_structure/config/base.yml',
 }
 
 

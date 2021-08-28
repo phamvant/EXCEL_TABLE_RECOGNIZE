@@ -5,7 +5,6 @@ import math
 import torch
 from collections import defaultdict
 
-
 class Predictor(object):
     def __init__(self, model, config, vocab):
         self.config = config
@@ -82,12 +81,12 @@ class Predictor(object):
         new_w, image_height = self.resize_v1(w, h, self.config['dataset']['image_height'],
                                              self.config['dataset']['image_min_width'],
                                              self.config['dataset']['image_max_width'])
-
+        # cv2.imshow('a', image)
+        # cv2.waitKey()
         img = cv2.resize(image, (new_w, image_height))
         img = img / 255.0
         img = np.transpose(img, (2, 0, 1))
-        cv2.imshow('a', img)
-        cv2.waitKey()
+
         return img
 
     def batch_process(self, images, set_bucket_thresh):

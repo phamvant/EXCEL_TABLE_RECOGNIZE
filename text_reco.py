@@ -156,39 +156,6 @@ for j in range(len(coord_y) - 1):
     for i in range(len(coord_x) - 1):
         coord.append((coord_x[i],coord_y[j],coord_x[i + 1], coord_y[j + 1]))
 
-print(coord)
-# print(coord)
-# cv2.imshow('a', imutils.resize(table_image, width=1200))
-# cv2.waitKey()
-# coord = []
-
-# def find_red(img1):
-#     hsv = cv2.cvtColor(img1,cv2.COLOR_BGR2HSV)
-
-#     #lower red
-#     lower_red = np.array([0,50,50])
-#     upper_red = np.array([10,255,255])
-
-#     lower_red2 = np.array([170,50,50])
-#     upper_red2 = np.array([180,255,255])
-
-#     mask = cv2.inRange(hsv, lower_red, upper_red)
-#     res = cv2.bitwise_and(img1,img1, mask= mask)
-
-
-#     kernel = np.ones((15,15),np.float32)/225
-#     w = mask.shape[0]
-#     h = mask.shape[1]
-#     for i in range(w):
-#         if mask[i][400] == 255 and mask[i][200] == 255:
-#             print(i)
-#     print(coord)
-#     cv2.imshow('mask',imutils.resize(mask, width=1200))
-#     cv2.waitKey()
-
-
-# find_red(table_image.copy())
-
 import torch
 from craft_structure.detection import detect, get_detector
 
@@ -214,7 +181,7 @@ for cellll in cells:
 # cv2.imshow('a', table_image)
 # cv2.waitKey()
 
-from Predictor import Predictor
+from vietocr_structure.Predictor import Predictor
 from vietocr_structure.vocab import Vocab
 from vietocr_structure.load_config import Cfg
 from vietocr_structure.ocr_model import VietOCR
@@ -232,7 +199,7 @@ def build_model(config):
     return model, vocab
 
 # Load model ocr
-config = Cfg.load_config_from_file('/media/thuan/2E4A8C924A8C590B/Users/phamt/Desktop/vietocr_structure/config/vgg-seq2seq.yml')
+config = Cfg.load_config_from_file('/home/thuan/Desktop/Desktop/vietocr_structure/config/vgg-seq2seq.yml')
 config['predictor']['beamsearch'] = False
 model, vocab = build_model(config)
 model.load_state_dict(torch.load(
@@ -255,7 +222,8 @@ def ocr(img, textline_list, imgH=32):
     return final_result
 
 table_result = ocr(img=table_image, textline_list=final_horizontal_list)
-
+print(table_result)
+exit()
 def center(point):
       midx = (point[0][0] + point[2][0]) // 2
       midy = (point[0][1] + point[2][1]) // 2
@@ -273,19 +241,14 @@ for celll in range(len(coord)):
     for a in range(len(table_result)):
         mid_x = center(table_result[a][0])[0]
         mid_y = center(table_result[a][0])[1]
-        cv2.circle(table_image, (cell_x_max, cell_y_max), 5, (255, 255, 0), -1)
         if cell_x_min < mid_x < cell_x_max and cell_y_min < mid_y < cell_y_max:
-            if table_result[a - 1][1] is table_result[a][1]:
-                print("OKOKOK")
+            if table_result[a - 1][1] in table_result[a][1]:
                 final += ""
             else:
                 final += table_result[a][1] + space
-    Show(table_image)
-    print(final)
-    print("\n")
     sheet.cell(row=i, column=j, value=final)
     j += 1
 
-wb.save('/media/thuan/2E4A8C924A8C590B/Users/phamt/Desktop/Test.xlsx')
+wb.save('Test.xlsx')
 cv2.imwrite("result.jpg", table_image)
 # Show(table_image)
