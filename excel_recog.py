@@ -199,7 +199,7 @@ def build_model(config):
     return model, vocab
 
 # Load model ocr
-config = Cfg.load_config_from_file('/home/thuan/Desktop/Desktop/vietocr_structure/config/vgg-seq2seq.yml')
+config = Cfg.load_config_from_file('/home/thuan/excel_recognize/vietocr_structure/config/vgg-seq2seq.yml')
 config['predictor']['beamsearch'] = False
 model, vocab = build_model(config)
 model.load_state_dict(torch.load(
