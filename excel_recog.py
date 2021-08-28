@@ -222,8 +222,7 @@ def ocr(img, textline_list, imgH=32):
     return final_result
 
 table_result = ocr(img=table_image, textline_list=final_horizontal_list)
-print(table_result)
-exit()
+
 def center(point):
       midx = (point[0][0] + point[2][0]) // 2
       midy = (point[0][1] + point[2][1]) // 2
@@ -242,13 +241,13 @@ for celll in range(len(coord)):
         mid_x = center(table_result[a][0])[0]
         mid_y = center(table_result[a][0])[1]
         if cell_x_min < mid_x < cell_x_max and cell_y_min < mid_y < cell_y_max:
-            if table_result[a - 1][1] in table_result[a][1]:
+            if table_result[a][1] + space == final:
                 final += ""
             else:
                 final += table_result[a][1] + space
     sheet.cell(row=i, column=j, value=final)
     j += 1
 
-wb.save('Test.xlsx')
+wb.save('result.xlsx')
 cv2.imwrite("result.jpg", table_image)
 # Show(table_image)
