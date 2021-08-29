@@ -1,6 +1,7 @@
 import cv2
 from PIL import Image, ImageEnhance
 import numpy as np
+from numpy.matrixlib.defmatrix import matrix
 import openpyxl
 import pprint
 import imutils
@@ -22,7 +23,32 @@ def preprocess(img, factor: int):
     return np.array(enhancer)
 
 
-table_image = cv2.imread("hi(1).jpg")
+table_image = cv2.imread("/home/thuan/Downloads/image.jpg")
+
+table_origin = table_image.copy()
+
+h, w , _ = table_origin.shape
+tile = w // 1200
+
+point = []
+table_origin = imutils.resize(table_origin, width=1200)
+def click_event(event, x, y, flags, param):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        cv2.circle(table_origin, (x, y), 3, (0, 0, 255), 3, cv2.FILLED)
+        x = x * tile
+        y = y * tile
+        point.append((x, y))
+        cv2.imshow('Image', table_origin)
+        if len(points) == 2:
+            cv2.waitKey()
+            return None
+
+
+cv2.imshow('Image', table_origin)
+points = []
+cv2.setMouseCallback('Image', click_event)
+cv2.waitKey()
+cv2.destroyAllWindows()
 #table_image = cv2.imread("table.png")
 gray = cv2.cvtColor(table_image, cv2.COLOR_BGR2GRAY)
 thresh, img_bin = cv2.threshold(
@@ -121,9 +147,9 @@ def get_bottom_right(right_points, bottom_points, points):
 
 
 cells = []
-
-for point in points:
-    left, top = point
+table_origin = table_image.copy()
+for pointx in points:
+    left, top = pointx
     right_points = sorted(
         [p for p in points if p[0] > left and p[1] == top], key=lambda x: x[0])
     bottom_points = sorted(
@@ -135,26 +161,72 @@ for point in points:
         cv2.rectangle(table_image, (left, top), (right, bottom), (0, 0, 255), 2)
         cells.append([left, top, right, bottom])
 
+h, w, _ = table_image.shape
 coord_x = []
 coord_y = []
 kkk = 0
 kkk2 = 0
-while (kkk < table_image.shape[1]):
-    if (table_image[400][kkk][0] == 0 and table_image[400][kkk][2] == 255):
+# cv2.circle(table_image, (w // 3, h // 2), 20, (0,0,255), 100)
+# print(table_image[w // 3 + 10][h // 2 + 10])
+# cv2.imshow('a', imutils.resize(table_image, width=1200))
+# cv2.waitKey()
+# exit()
+
+while (kkk < w):
+    if (table_image[1200][kkk][0] == 0 and table_image[1200][kkk][2] == 255):
         coord_x.append(kkk)
         kkk += 20
     kkk += 1
 
-while (kkk2 < table_image.shape[0]):
+while (kkk2 < h):
     if (table_image[kkk2][400][0] == 0 and table_image[kkk2][400][2] == 255):
         coord_y.append(kkk2)
         kkk2 += 10
     kkk2 += 1
 
+final_matrix = []
+for i in range(len(coord_y) - 1):
+    check = 0
+    temp = 1
+    j = 0
+    for j in coord_x:
+        if check == 0:
+            check = 1
+            continue
+        else:
+            if (table_image[coord_y[i] + 30][j][0]) == 0 and (table_image[coord_y[i] + 30][j][2] == 255):
+                final_matrix.append(1)
+                # print(j)
+                # cv2.circle(table_image, (j,(coord_y[i])), 10, (0,0,255), 10)
+                #Show(table_image)
+                temp = 1
+            else:
+                temp = 0
+                final_matrix.append(0)
+    # final_matrix.append(matrix)
+
 coord = []
-for j in range(len(coord_y) - 1):
-    for i in range(len(coord_x) - 1):
+i = 0
+j = 0
+count = 0
+while j < (len(coord_y) - 1):
+    i = 0
+    while i < (len(coord_x) - 1):
+        while (coord_y[j] < point[0][1] < coord_y[j + 1]) and (point[0][0] < coord_x[i] < point[1][0]):
+            final_matrix[count] = 0
+            i += 1
+            count += 1
         coord.append((coord_x[i],coord_y[j],coord_x[i + 1], coord_y[j + 1]))
+        i += 1
+        count += 1
+    j += 1
+
+# count = 0
+# for i in final_matrix:
+#     if (count % 11 == 0):
+#         print("\n")
+#     print(i, end=" ")
+#     count += 1
 
 import torch
 from craft_structure.detection import detect, get_detector
@@ -165,7 +237,7 @@ craft = get_detector("models/craft_mlt_25k.pth", device)
 final_horizontal_list = []
 horizontal_list1 = []
 
-for cellll in cells:
+for cellll in coord:
     cell_x_min, cell_y_min, cell_x_max, cell_y_max = cellll
     cell_image = table_image[cell_y_min:cell_y_max, cell_x_min:cell_x_max]
     horizontal_list, free_list = detect(craft, cell_image, device=device)
@@ -177,7 +249,7 @@ for cellll in cells:
         y_max = cell_y_min + box[3]
         cv2.rectangle(table_image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
         final_horizontal_list.append([x_min, x_max, y_min, y_max])
-
+# Show(table_image)
 # cv2.imshow('a', table_image)
 # cv2.waitKey()
 
@@ -230,6 +302,7 @@ def center(point):
 #[(36, 35, 132, 253), (36, 253, 132, 345), (36, 345, 132, 431)
 i = 1
 j = 1
+count = 0
 for celll in range(len(coord)):
     if j == 12:
         i += 1
@@ -241,11 +314,19 @@ for celll in range(len(coord)):
         mid_x = center(table_result[a][0])[0]
         mid_y = center(table_result[a][0])[1]
         if cell_x_min < mid_x < cell_x_max and cell_y_min < mid_y < cell_y_max:
-            if table_result[a][1] + space == final:
+            if table_result[a][1] in final:
                 final += ""
             else:
                 final += table_result[a][1] + space
+    while final_matrix[count] == 0:
+        j += 1
+        count += 1
+        if count == 154:
+            break
     sheet.cell(row=i, column=j, value=final)
+    if count == 154:
+        break
+    count += 1
     j += 1
 
 wb.save('result.xlsx')
