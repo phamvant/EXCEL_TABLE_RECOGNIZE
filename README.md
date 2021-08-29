@@ -2,16 +2,25 @@
 This is my first personal project
 Convert table in image to Excel file
 #1: detect grid and text (using VietOCR)
+
 <img src="/result/result.jpg" width="600" height="360">
 
-#
-#
-#
-#
+
+
+
+
+
 #2: Result
 
-
 <img src="/result/result_excel.png" width="600" height="360">
+
+
+
+
+
+
+
+#credit
 
 Base on:
 
