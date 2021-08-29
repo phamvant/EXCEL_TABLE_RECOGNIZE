@@ -22,6 +22,8 @@ Convert table in image to Excel file
 
 #credit
 
+so far this program can only decect image that have straight lines
+
 Base on:
 
  1) https://viblo.asia/p/trich-xuat-thong-tin-bang-bieu-cuc-don-gian-voi-opencv-1Je5E7M1ZnL
