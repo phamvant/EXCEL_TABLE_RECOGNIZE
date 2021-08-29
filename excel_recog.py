@@ -13,6 +13,8 @@ from yaml.error import Mark
 wb = openpyxl.Workbook()
 ws = wb.active
 
+name = "99f"
+
 sheet = wb['Sheet']
 def preprocess(img, factor: int):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -23,20 +25,21 @@ def preprocess(img, factor: int):
     return np.array(enhancer)
 
 
-table_image = cv2.imread("/home/thuan/Downloads/image.jpg")
+table_image = cv2.imread("/home/thuan/Downloads/{}.jpg".format(name))
 
 table_origin = table_image.copy()
-
-h, w , _ = table_origin.shape
-tile = w // 1200
+table_paint = table_image.copy()
+h, w , _ = table_image.shape
+tile = w / 1200
 
 point = []
 table_origin = imutils.resize(table_origin, width=1200)
+
 def click_event(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONDOWN:
         cv2.circle(table_origin, (x, y), 3, (0, 0, 255), 3, cv2.FILLED)
-        x = x * tile
-        y = y * tile
+        x = int(x * tile)
+        y = int(y * tile)
         point.append((x, y))
         cv2.imshow('Image', table_origin)
         if len(points) == 2:
@@ -49,6 +52,39 @@ points = []
 cv2.setMouseCallback('Image', click_event)
 cv2.waitKey()
 cv2.destroyAllWindows()
+
+
+
+# def click_event(event, x, y, flags, param):
+#     if event == cv2.EVENT_LBUTTONDOWN:
+#         cv2.circle(table_paint, (x, y), 3, (0, 0, 255), 3, cv2.FILLED)
+#         points.append((x, y))
+#         if len(points) >= 2:
+#             cv2.line(table_paint, points[-1], points[-2], (255, 0, 0), 5, cv2.LINE_AA)
+#         cv2.imshow('Image', table_paint)
+#     elif event == cv2.EVENT_RBUTTONDOWN:
+#         points.clear()
+table_temp = table_image.copy()
+table_temp = imutils.resize(table_temp, width=1200)
+pointk = []
+def click_event(event, x, y, flags, param):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        cv2.circle(table_temp, (x, y), 3, (0, 0, 255), 3, cv2.FILLED)
+        point.append((int(x * tile), int (y * tile)))
+        pointk.append((x, y))
+        if len(pointk) >= 2:
+            cv2.line(table_temp, pointk[-1], pointk[-2], (0, 0, 0), 1, cv2.LINE_AA)
+            cv2.line(table_image, point[-1], point[-2], (0, 0, 0), 2, cv2.LINE_AA)
+        cv2.imshow('Image', table_temp)
+    elif event == cv2.EVENT_RBUTTONDOWN:
+        pointk.clear()
+
+cv2.imshow('Image', table_temp)
+points = []
+cv2.setMouseCallback('Image', click_event)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
 #table_image = cv2.imread("table.png")
 gray = cv2.cvtColor(table_image, cv2.COLOR_BGR2GRAY)
 thresh, img_bin = cv2.threshold(
@@ -151,9 +187,9 @@ table_origin = table_image.copy()
 for pointx in points:
     left, top = pointx
     right_points = sorted(
-        [p for p in points if p[0] > left and p[1] == top], key=lambda x: x[0])
+        [p for p in points if p[0] > left and top - 10 < p[1] < top + 10], key=lambda x: x[0])
     bottom_points = sorted(
-        [p for p in points if p[1] > top and p[0] == left], key=lambda x: x[1])
+        [p for p in points if p[1] > top and left - 10 < p[0] < left + 10], key=lambda x: x[1])
 
     right, bottom = get_bottom_right(
         right_points, bottom_points, points)
@@ -329,6 +365,6 @@ for celll in range(len(coord)):
     count += 1
     j += 1
 
-wb.save('result.xlsx')
+wb.save('/result/result_{}.xlsx'.format(name))
 cv2.imwrite("result.jpg", table_image)
 # Show(table_image)
