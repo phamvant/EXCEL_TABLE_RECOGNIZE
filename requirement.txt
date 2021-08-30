@@ -1,0 +1,13 @@
+imutils
+matplotlib
+numpy
+opencv-python
+openpyxl
+Pillow
+predictor
+scikit-image
+scipy
+torch
+torchaudio
+torchvision
+vietocr

@@ -290,7 +290,7 @@ def main(name):
         return model, vocab
 
     # Load model ocr
-    config = Cfg.load_config_from_file('/home/thuan/excel_recognize/vietocr_structure/config/vgg-seq2seq.yml')
+    config = Cfg.load_config_from_file('/home/thuan/EXCEL_TABLE_RECOGNIZE/vietocr_structure/config/vgg-seq2seq.yml')
     config['predictor']['beamsearch'] = False
     model, vocab = build_model(config)
     model.load_state_dict(torch.load(
@@ -348,16 +348,16 @@ def main(name):
         count += 1
         j += 1
 
-    cv2.imshow('Image', table_image)
+    cv2.imshow('Image', imutils.resize(table_image, width=1200))
     key = cv2.waitKey()
     if key == 27:
         return None
     elif key == 114:
         main(name)
-
+    cv2.destroyAllWindows()
     out_name = input("Enter name: ")
-    wb.save('/result_excel/{}.xlsx'.format(out_name))
-    cv2.imwrite("/result_image/{}.jpg".format(out_name), table_image)
+    wb.save('/home/thuan/EXCEL_TABLE_RECOGNIZE/result_excel/{}.xlsx'.format(out_name))
+    cv2.imwrite("/home/thuan/EXCEL_TABLE_RECOGNIZE/result_image/{}.jpg".format(out_name), table_image)
 
 filenames = next(walk("/home/thuan/Downloads"), (None, None, []))[2]
 
