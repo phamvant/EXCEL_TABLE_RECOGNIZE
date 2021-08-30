@@ -9,7 +9,7 @@ from os import walk
 import openpyxl
 from yaml import loader
 from yaml.error import Mark
-
+import os
 
 def main(name):
     #start
@@ -17,13 +17,16 @@ def main(name):
     ws = wb.active
 
     sheet = wb['Sheet']
-    table_image = cv2.imread("/home/thuan/Downloads/{}".format(name))
+    if os.name != "nt":
+        table_image = cv2.imread("/home/thuan/Downloads/{}".format(name))
+    else:
+        table_image = cv2.imread("C:\\Users\\phamt\\Pictures\\{}".format(name))
     table_paint = table_image.copy()
     h, w , _ = table_image.shape
-    tile = w / 1200
+    tile = w / 1000
 
     def Show(table_image):
-        table_image = imutils.resize(table_image, width=1200)
+        table_image = imutils.resize(table_image, width=1000)
         cv2.imshow('a', table_image)
         cv2.waitKey()
 
@@ -33,7 +36,7 @@ def main(name):
     points = []
     def merge_cell():
         table_origin = table_image.copy()
-        table_origin = imutils.resize(table_origin, width=1200)
+        table_origin = imutils.resize(table_origin, width=1000)
         def click_event(event, x, y, flags, param):
             if event == cv2.EVENT_LBUTTONDOWN:
                 cv2.circle(table_origin, (x, y), 3, (0, 0, 255), 3, cv2.FILLED)
@@ -54,7 +57,7 @@ def main(name):
 
     def draw():
         table_temp = table_image.copy()
-        table_temp = imutils.resize(table_temp, width=1200)
+        table_temp = imutils.resize(table_temp, width=1000)
         def click_event(event, x, y, flags, param):
             if event == cv2.EVENT_LBUTTONDOWN:
                 cv2.circle(table_temp, (x, y), 3, (0, 0, 255), 3, cv2.FILLED)
@@ -191,7 +194,7 @@ def main(name):
             cv2.rectangle(table_image, (left, top), (right, bottom), (0, 0, 255), 2)
             cells.append([left, top, right, bottom])
 
-    cv2.imshow('Image', imutils.resize(table_image, width=1200))
+    cv2.imshow('Image', imutils.resize(table_image, width=1000))
     key = cv2.waitKey()
     if(key == 27):
         main(name)
@@ -204,7 +207,7 @@ def main(name):
     kkk2 = 0
 
     while (kkk < w):
-        if (table_image[1200][kkk][0] == 0 and table_image[1200][kkk][2] == 255):
+        if (table_image[1000][kkk][0] == 0 and table_image[1000][kkk][2] == 255):
             coord_x.append(kkk)
             kkk += 20
         kkk += 1
@@ -290,7 +293,10 @@ def main(name):
         return model, vocab
 
     # Load model ocr
-    config = Cfg.load_config_from_file('/home/thuan/EXCEL_TABLE_RECOGNIZE/vietocr_structure/config/vgg-seq2seq.yml')
+    if os.name != "nt":
+        config = Cfg.load_config_from_file('/home/thuan/EXCEL_TABLE_RECOGNIZE/vietocr_structure/config/vgg-seq2seq.yml')
+    else:
+        config = Cfg.load_config_from_file('D:\\CodeGit\\EXCEL_TABLE_RECOGNIZE\\vietocr_structure\\config\\vgg-seq2seq.yml')
     config['predictor']['beamsearch'] = False
     model, vocab = build_model(config)
     model.load_state_dict(torch.load(
@@ -348,7 +354,7 @@ def main(name):
         count += 1
         j += 1
 
-    cv2.imshow('Image', imutils.resize(table_image, width=1200))
+    cv2.imshow('Image', imutils.resize(table_image, width=1000))
     key = cv2.waitKey()
     if key == 27:
         return None
@@ -356,10 +362,20 @@ def main(name):
         main(name)
     cv2.destroyAllWindows()
     out_name = input("Enter name: ")
-    wb.save('/home/thuan/EXCEL_TABLE_RECOGNIZE/result_excel/{}.xlsx'.format(out_name))
-    cv2.imwrite("/home/thuan/EXCEL_TABLE_RECOGNIZE/result_image/{}.jpg".format(out_name), table_image)
+    if os.name != "nt":
+        wb.save('/home/thuan/EXCEL_TABLE_RECOGNIZE/result_excel/{}.xlsx'.format(out_name))
+        cv2.imwrite("/home/thuan/EXCEL_TABLE_RECOGNIZE/result_image/{}.jpg".format(out_name), table_image)
+    else:
+        wb.save('D:\\CodeGit\\EXCEL_TABLE_RECOGNIZE\\result_excel\\{}.xlsx'.format(out_name))
+        cv2.imwrite("D:\\CodeGit\\EXCEL_TABLE_RECOGNIZE\\result_image\\{}.jpg".format(out_name), table_image)
 
-filenames = next(walk("/home/thuan/Downloads"), (None, None, []))[2]
+if os.name != "nt":
+    filenames = next(walk("/home/thuan/Downloads"), (None, None, []))[2]
+else:
+    filenames = next(walk("C:\\Users\\phamt\\Pictures\\"), (None, None, []))[2]
 
 for name in filenames:
+    if os.name == "nt":
+        if os.path.splitext(name)[1] != ".jpg":
+            continue
     main(name)
