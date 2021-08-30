@@ -3,7 +3,7 @@ This is my first personal project
 Convert table in image to Excel file
 #1: detect grid and text (using VietOCR)
 
-<img src="/result/result.jpg" width="600" height="360">
+<img src="/result_image/result.jpg" width="600" height="360">
 
 
 
@@ -12,7 +12,7 @@ Convert table in image to Excel file
 
 #2: Result
 
-<img src="/result/result_excel.png" width="600" height="360">
+<img src="/result_image/result_excel.png" width="600" height="360">
 
 
 

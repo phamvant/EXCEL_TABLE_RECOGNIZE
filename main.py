@@ -356,7 +356,7 @@ def main(name):
         main(name)
 
     out_name = input("Enter name: ")
-    wb.save('/result/{}.xlsx'.format(out_name))
+    wb.save('/result_excel/{}.xlsx'.format(out_name))
     cv2.imwrite("/result_image/{}.jpg".format(out_name), table_image)
 
 filenames = next(walk("/home/thuan/Downloads"), (None, None, []))[2]
