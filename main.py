@@ -354,6 +354,7 @@ def main(name):
         return None
     elif key == 114:
         main(name)
+
     out_name = input("Enter name: ")
     wb.save('/result/{}.xlsx'.format(out_name))
     cv2.imwrite("/result_image/{}.jpg".format(out_name), table_image)
