@@ -13,9 +13,9 @@ import os
 
 def main(name):
     #start
+    print(name)
     wb = openpyxl.Workbook()
     ws = wb.active
-
     sheet = wb['Sheet']
     if os.name != "nt":
         table_image = cv2.imread("/home/thuan/Downloads/{}".format(name))
@@ -23,10 +23,10 @@ def main(name):
         table_image = cv2.imread("C:\\Users\\phamt\\Pictures\\{}".format(name))
     table_paint = table_image.copy()
     h, w , _ = table_image.shape
-    tile = w / 1000
+    tile = w / 600
 
     def Show(table_image):
-        table_image = imutils.resize(table_image, width=1000)
+        table_image = imutils.resize(table_image, width=600)
         cv2.imshow('a', table_image)
         cv2.waitKey()
 
@@ -36,7 +36,7 @@ def main(name):
     points = []
     def merge_cell():
         table_origin = table_image.copy()
-        table_origin = imutils.resize(table_origin, width=1000)
+        table_origin = imutils.resize(table_origin, width=600)
         def click_event(event, x, y, flags, param):
             if event == cv2.EVENT_LBUTTONDOWN:
                 cv2.circle(table_origin, (x, y), 3, (0, 0, 255), 3, cv2.FILLED)
@@ -57,7 +57,7 @@ def main(name):
 
     def draw():
         table_temp = table_image.copy()
-        table_temp = imutils.resize(table_temp, width=1000)
+        table_temp = imutils.resize(table_temp, width=600)
         def click_event(event, x, y, flags, param):
             if event == cv2.EVENT_LBUTTONDOWN:
                 cv2.circle(table_temp, (x, y), 3, (0, 0, 255), 3, cv2.FILLED)
@@ -184,9 +184,9 @@ def main(name):
     for pointx in points:
         left, top = pointx
         right_points = sorted(
-            [p for p in points if p[0] > left and top - 10 < p[1] < top + 10], key=lambda x: x[0])
+            [p for p in points if p[0] > left and p[1] == top], key=lambda x: x[0])
         bottom_points = sorted(
-            [p for p in points if p[1] > top and left - 10 < p[0] < left + 10], key=lambda x: x[1])
+            [p for p in points if p[1] > top and p[0] == left], key=lambda x: x[1])
 
         right, bottom = get_bottom_right(
             right_points, bottom_points, points)
@@ -194,7 +194,7 @@ def main(name):
             cv2.rectangle(table_image, (left, top), (right, bottom), (0, 0, 255), 2)
             cells.append([left, top, right, bottom])
 
-    cv2.imshow('Image', imutils.resize(table_image, width=1000))
+    cv2.imshow('Image', imutils.resize(table_image, width=600))
     key = cv2.waitKey()
     if(key == 27):
         main(name)
@@ -207,7 +207,7 @@ def main(name):
     kkk2 = 0
 
     while (kkk < w):
-        if (table_image[1000][kkk][0] == 0 and table_image[1000][kkk][2] == 255):
+        if (table_image[400][kkk][0] == 0 and table_image[400][kkk][2] == 255):
             coord_x.append(kkk)
             kkk += 20
         kkk += 1
@@ -215,7 +215,7 @@ def main(name):
     while (kkk2 < h):
         if (table_image[kkk2][400][0] == 0 and table_image[kkk2][400][2] == 255):
             coord_y.append(kkk2)
-            kkk2 += 10
+            kkk2 += 20
         kkk2 += 1
 
     final_matrix = []
@@ -233,7 +233,7 @@ def main(name):
                     temp = 1
                 else:
                     temp = 0
-                    final_matrix.append(0)
+                    final_matrix.append(1)
 
     coord = []
     i = 0
@@ -242,16 +242,16 @@ def main(name):
     while j < (len(coord_y) - 1):
         i = 0
         while i < (len(coord_x) - 1):
-            while (coord_y[j] < point[0][1] < coord_y[j + 1]) and (point[0][0] < coord_x[i] < point[1][0]):
-                final_matrix[count] = 0
-                i += 1
-                count += 1
+            # while (coord_y[j] < point[0][1] < coord_y[j + 1]) and (point[0][0] < coord_x[i] < point[1][0]):
+            #     final_matrix[count] = 0
+            #     i += 1
+            #     count += 1
             coord.append((coord_x[i],coord_y[j],coord_x[i + 1], coord_y[j + 1]))
             i += 1
             count += 1
         j += 1
 
-
+    print(len(coord_x), len(coord_y), len(final_matrix))
     import torch
     from craft_structure.detection import detect, get_detector
 
@@ -263,7 +263,7 @@ def main(name):
 
     for cellll in coord:
         cell_x_min, cell_y_min, cell_x_max, cell_y_max = cellll
-        cell_image = table_image[cell_y_min:cell_y_max, cell_x_min:cell_x_max]
+        cell_image = table_origin[cell_y_min:cell_y_max, cell_x_min:cell_x_max]
         horizontal_list, free_list = detect(craft, cell_image, device=device)
         horizontal_list1.append(horizontal_list)
         for box in horizontal_list:
@@ -329,7 +329,7 @@ def main(name):
     j = 1
     count = 0
     for celll in range(len(coord)):
-        if j == 12:
+        if j == len(coord_x):
             i += 1
             j = 1
         cell_x_min, cell_y_min, cell_x_max, cell_y_max = coord[celll]
@@ -346,15 +346,15 @@ def main(name):
         while final_matrix[count] == 0:
             j += 1
             count += 1
-            if count == 154:
+            if count == (len(final_matrix) - 1):
                 break
         sheet.cell(row=i, column=j, value=final)
-        if count == 154:
+        if count == (len(final_matrix) - 1):
             break
         count += 1
         j += 1
 
-    cv2.imshow('Image', imutils.resize(table_image, width=1000))
+    cv2.imshow('Image', imutils.resize(table_image, width=600))
     key = cv2.waitKey()
     if key == 27:
         return None
