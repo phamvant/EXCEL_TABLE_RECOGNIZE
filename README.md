@@ -3,7 +3,7 @@ This is my first personal project
 Convert table in image to Excel file
 #1: detect grid and text (using VietOCR)
 
-<img src="/result_image/result.jpg" width="600" height="360">
+<img src="https://raw.githubusercontent.com/phamvant/EXCEL_TABLE_RECOGNIZE/969d35a00a5bcd057818515858a5767cd6e20405/result_image/result/result.jpg" width="600" height="360">
 
 
 
