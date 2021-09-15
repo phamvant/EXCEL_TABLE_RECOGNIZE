@@ -12,7 +12,7 @@ Convert table in image to Excel file
 
 #2: Result
 
-<img src="/result_image/result_excel.png" width="600" height="360">
+<img src="https://raw.githubusercontent.com/phamvant/EXCEL_TABLE_RECOGNIZE/6cadaeb620217a5cb7ce22c03ceb5143d152efe7/result_image/result_excel.png" width="600" height="360">
 
 
 
